@@ -1,0 +1,252 @@
+I corrected the error, rechecked your work and changed the index back.   I reformatted things just so they line up to make it easier to read.    I ran it through if you want to check the listing file below.   I also included the S record.  Do you have a PROM programmer and part to load this code into?   If so, I think it's time to build up the circuit.   If you need help understanding how to build it, let me know.  You could do this on some white board for the small number of parts you want to program. 
+
+
+
+S00A000042595445425547E3
+S10B0080000000000000000074
+S123B8508E00FF860797009702CEF800DF84C600A6001126298CFFFF27030820F3860697A3
+S123B87002DF86CE004609CCC350D3097F0008DD0B8640950827FC8C000026EA20068683B5
+S123B8909702205DCE7000DF80CE7FFFDF82CEC350DF86DE843CDE803C86FE9714A600DE03
+S123B8B084A70008DF8486FC9714DC86D3097F0008DD0B8640950827FC38089C8223D9869E
+S123B8D0FF971438DF84CE70003CA600DE84E60011261008DF8438088C800026EC868497F6
+S10CB8F00220FE8682970220F872
+S113BFF0B8F1B8F1B8F1B8F1B8F1B8F1B8F1B85096
+S9030000FC
+
+ 
+
+M6801 Portable Cross Assembler  0.05   MS-DOS/PC-DOS  Page 1
+ Sat May 18 20:37:13 2019
+Command line:
+ C:\6801\PASM01.EXE -dxs -l BYTEBUG.lst BYTEBUG.asm
+Options list:
+ON  - b - Printing of macro definitions
+ON  - c - Printing of macro calls
+ON  - d - Placing of symbolic debugging information in COFF  (changed)
+OFF - e - Printing of macro expansions
+ON  - f - Printing of conditional directives
+OFF - g - Printing of generated constants list
+OFF - q - Expanding and printing of structured syntax
+ON  - s - Printing of symbol table  (changed)
+OFF - u - Printing of conditional unassembled source
+ON  - x - Printing of cross reference table  (changed)
+OFF - m - Suppress printing of error messages
+ON  - w - Printing of warning messages
+OFF - v - Suppress printing of updated status
+OFF - y - Enabling of sgs extensions
+ON  - o - Create object code
+ON  -   - Formatting of source line listing
+Create listing file - l - BYTEBUG.lst
+ 
+Xdefs:
+  NONE
+ 
+Xrefs:
+  NONE
+
+Input file(s): BYTEBUG.asm (142 lines)
+ 
+Output file: BYTEBUG.o 
+Listing file: BYTEBUG.lst
+
+M6801 Portable Cross Assembler  0.05  BYTEBUG.asm  Page 2
+ Sat May 18 20:37:13 2019 
+Options - MD,MC,NOG,NOU,W,NOMEX,CL,FMT,O
+ 
+LINE   S PC   OPCO OPERANDS S LABEL    MNEMO OPERANDS COMMENT
+00001                         *
+00002                         *
+00003                         * THIS PROGRAM WILL CHECK, PROGRAM AND VERIFY
+00004                         * THE MC68701U4 ' S EPROM.
+00005                         *
+00006                         *
+00007                         *         E Q U A T E S
+00008  P 0000      0000     A P1DDR    EQU   $00      PORT 1 DATA DIR. REGISTER
+00009  P 0000      0002     A P1DR     EQU   $02      PORT 1 DATA REGISTER
+00010  P 0000      0008     A TCSR     EQU   $08      TIMER CONTROL/STAT REGISTER
+00011  P 0000      0009     A TIMER    EQU   $09      COUNTER REGISTER
+00012  P 0000      000b     A OUTCMP   EQU   $0B      OUTPUT COMPARE REGISTER
+00013  P 0000      0014     A EPMCNT   EQU   $14      RAM/EROM CONTROL REGISTER
+00014                         *
+00015                         *         L O C A L       V A R I A B L E S
+00016                         *
+00017  A 0080                          ORG   $80     
+00018  A 0080      02       A IMBEG    RMB   2        START OF MEMORY BLOCK
+00019  A 0082      02       A IMEND    RMB   2        LAST BYTE OF MEMORY BLOCK
+00020  A 0084      02       A PNTR     RMB   2        FIRST BYTE OF EPROM TO RE PGM'D
+00021  A 0086      02       A WAIT     RMB   2        COUNTER VALUE
+00022                         *
+00023  A b850                          ORG   $B850   
+00024  A b850 8e   00ff     A START    LDS   #$FF     INITIALIZE STACK
+00025  A b853 86   07       A          LDAA  #$07     INIT. PORT 1
+00026  A b855 97   00       A          STAA  P1DDR    DDR
+00027  A b857 97   02       A          STAA  P1DR     DATA REGISTER (ALL LED'S OFF)
+00028                         **
+00029  A b859 ce   f800     A          LDX   #$F800   CHECK IF EPROM ERASED
+00030  A b85c df   84       A          STX   PNTR     INIT. PNTR WHILE CONVENIENT
+00031  A b85e c6   00       A          LDAB  #$00     GET READY FOR CMPR.
+00032  A b860 a6   00       A ERASE    LDAA  0,X      LOAD EPROM CONTENTS
+00033  A b862 11                       CBA            COMPARE TO ZERO
+00034  A b863 26   29    b88e          BNE   ERROR1   BRANCH IF NOT ZERO
+00035  A b865 8c   ffff     A          CPX   #$FFFF   
+00036  A b868 27   03    b86d          BEQ   NEXT     IF SO BRANCH
+00037  A b86a 08                       INX            GO AGAIN
+00038  A b86b 20   f3    b860          BRA   ERASE   
+00039                         **
+00040  A b86d 86   06       A NEXT     LDAA  #$06     TURN ON ERASED LED
+00041  A b86f 97   02       A          STAA  P1DR     
+00042                         **
+00043                         * WAIT FOR VPP TO REACH 21V (3.5 SEC.)
+00044                         *
+00045  A b871 df   86       A          STX   WAIT     
+00046  A b873 ce   0046     A          LDX   #$0046   
+00047  A b876 09              STALL1   DEX           
+00048  A b877 cc   c350     A          LDD   #$C350   INIT. 50MS LOOP
+00049  A b87a d3   09       A          ADDD  TIMER    BUMP CURRENT VALUE
+00050  A b87c 7f   0008     A          CLR   TCSR     CLEAR OCF
+00051  A b87f dd   0b       A          STD   OUTCMP   SET OUTPUT COMPARE
+00052  A b881 86   40       A          LDAA  #$40     NOW WAIT FOR OFC
+
+M6801 Portable Cross Assembler  0.05  BYTEBUG.asm  Page 3
+ Sat May 18 20:37:13 2019 
+Options - MD,MC,NOG,NOU,W,NOMEX,CL,FMT,O
+ 
+LINE   S PC   OPCO OPERANDS S LABEL    MNEMO OPERANDS COMMENT
+00053  A b883 95   08       A STALL2   BITA  TCSR     
+00054  A b885 27   fc    b883          BEQ   STALL2   NOT YET
+00055  A b887 8c   0000     A          CPX   #$0000   70 TIMES YET?
+00056  A b88a 26   ea    b876          BNE   STALL1   NOPE
+00057  A b88c 20   06    b894          BRA   PGINT   
+00058                         **
+00059  A b88e 86   83       A ERROR1   LDAA  #$83     LIGHT ERROR LED ONLY
+00060  A b890 97   02       A          STAA  P1DR     
+00061  A b892 20   5d    b8f1          BRA   SELF     
+00062                         **
+00063  A b894 ce   7000     A PGINT    LDX   #$7000   INIT. IMBEG
+00064  A b897 df   80       A          STX   IMBEG   
+00065  A b899 ce   7fff     A          LDX   #$7FFF   INIT. IMEND
+00066  A b89c df   82       A          STX   IMEND   
+00067  A b89e ce   c350     A          LDX   #$C350   INIT. WAIT (4.0 MHZ)
+00068  A b8a1 df   86       A          STX   WAIT     
+00069                         *
+00070                         * THIS PART FROM 68701U4 DATA SHEET
+00071                         *
+00072  A b8a3 de   84       A EPROM    LDX   PNTR     SAVE CALLING ARGUMENT
+00073  A b8a5 3c                       PSHX           RESTORE WHEN DONE
+00074  A b8a6 de   80       A          LDX   IMBEG    USE STACK
+00075                         *
+00076  A b8a8 3c              EPRO02   PSHX           SAVE POINTER ON STACK
+00077  A b8a9 86   fe       A          LDAA  #$FE     REMOVE VPP, SET LATCH
+00078  A b8ab 97   14       A          STAA  EPMCNT   PPC=1,PLC=0
+00079  A b8ad a6   00       A          LDAA  0,X      MOVE DATA MEMORY-TO-LATCH
+00080  A b8af de   84       A          LDX   PNTR     GET WHERE TO PUT IT
+00081  A b8b1 a7   00       A          STAA  0,X      STASH AND LATCH
+00082  A b8b3 08                       INX            NEXT ADDR.
+00083  A b8b4 df   84       A          STX   PNTR     ALL SET FOR NEXT
+00084  A b8b6 86   fc       A          LDAA  #$FC     ENABLE EPROM POWER (VPP)
+00085  A b8b8 97   14       A          STAA  EPMCNT   PPC=0,PLC=0
+00086                         *
+00087                         * NOW WAIT 50 MSEC TIMEOUT USING COMPARE
+00088                         *
+00089  A b8ba dc   86       A          LDD   WAIT     GET CYCLE COUNTER
+00090  A b8bc d3   09       A          ADDD  TIMER    BUMP CURRENT VALUE
+00091  A b8be 7f   0008     A          CLR   TCSR     CLEAR OCF
+00092  A b8c1 dd   0b       A          STD   OUTCMP   SET OUTPUT COMPARE
+00093  A b8c3 86   40       A          LDAA  #$40     NOW WAIT FOR OCF
+00094  A b8c5 95   08       A EPRO04   BITA  TCSR     
+00095  A b8c7 27   fc    b8c5          BEQ   EPRO04   NOT YET
+00096                         *
+00097  A b8c9 38                       PULX           SET UP FOR NEXT ONE
+00098  A b8ca 08                       INX            NEXT
+00099  A b8cb 9c   82       A          CPX   IMEND    MAYBE DONE
+00100  A b8cd 23   d9    b8a8          BLS   EPRO02   NOT YET
+00101  A b8cf 86   ff       A          LDAA  #$FF     REMOVE VPP, INHIBIT LATCH
+00102  A b8d1 97   14       A          STAA  EPMCNT   EPROM CAN NOW RE READ
+00103  A b8d3 38                       PULX           RESTORE PNTR
+00104  A b8d4 df   84       A          STX   PNTR     
+
+M6801 Portable Cross Assembler  0.05  BYTEBUG.asm  Page 4
+ Sat May 18 20:37:13 2019 
+Options - MD,MC,NOG,NOU,W,NOMEX,CL,FMT,O
+ 
+LINE   S PC   OPCO OPERANDS S LABEL    MNEMO OPERANDS COMMENT
+00105                         * *
+00106                         * START NEW CODE
+00107                         *
+00108  A b8d6 ce   7000     A          LDX   #$7000   SET UP POINTER
+00109  A b8d9 3c              VERF2    PSHX           SAVE POINTER ON STACK
+00110  A b8da a6   00       A          LDAA  0,X      GET DESIRED DATA
+00111  A b8dc de   84       A          LDX   PNTR     GET EPROM ADDR.
+00112  A b8de e6   00       A          LDAB  0,X      GET DATA TO BE CHECKED
+00113  A b8e0 11                       CBA            CHECK IF SAME
+00114  A b8e1 26   10    b8f3          BNE   ERROR2   BRANCH IF ERROR(LIGHT LED)
+00115  A b8e3 08                       INX            NEXT ADDR
+00116  A b8e4 df   84       A          STX   PNTR     ALL SET FOR NEXT
+00117  A b8e6 38                       PULX           SETUP FOR NEXT ONE
+00118  A b8e7 08                       INX            NEXT
+00119  A b8e8 8c   8000     A          CPX   #$8000   MAYBE DONE
+00120  A b8eb 26   ec    b8d9          BNE   VERF2    NOT YET
+00121                         **
+00122  A b8ed 86   84       A          LDAA  #$84     
+00123  A b8ef 97   02       A          STAA  P1DR     LIGHT VERIFY LED
+00124                         **
+00125  A b8f1 20   fe    b8f1 SELF     BRA   SELF     WAIT FOREVER
+00126                         **
+00127  A b8f3 86   82       A ERROR2   LDAA  #$82     LIGHT ERROR & ERASED LED'S
+00128  A b8f5 97   02       A          STAA  P1DR     
+00129  A b8f7 20   f8    b8f1          BRA   SELF     
+00130                         **
+00131                         * R E S T A R T   A N D   I N T R. V E C.
+00132                         *
+00133  A bff0                          ORG   $BFF0   
+00134  A bff0      b8f1     A          FDB   SELF     
+00135  A bff2      b8f1     A          FDB   SELF     
+00136  A bff4      b8f1     A          FDB   SELF     
+00137  A bff6      b8f1     A          FDB   SELF     
+00138  A bff8      b8f1     A          FDB   SELF     
+00139  A bffa      b8f1     A          FDB   SELF     
+00140  A bffc      b8f1     A          FDB   SELF     
+00141  A bffe      b850     A          FDB   START   
+00142                                  END           
+
+
+
+Total number of errors: 0
+Total number of warnings: 0
+Total number of lines: 142
+ 
+ 
+Number of bytes in section ASCT: 193
+
+Number of bytes in program: 193
+
+M6801 Portable Cross Assembler  0.05     Page 5
+ Sat May 18 20:37:13 2019 
+ 
+           CROSS REFERENCE TABLE
+NAME    ATTRB S VALUE P:LINE LINE1....N
+ 
+EPMCNT   EQU  A 0014  2:13          78   85  102
+EPRO02        A b8a8  3:76         100
+EPRO04        A b8c5  3:94          95
+EPROM         A b8a3  3:72       
+ERASE         A b860  2:32          38
+ERROR1        A b88e  3:59          34
+ERROR2        A b8f3  4:127        114
+IMBEG         A 0080  2:18          64   74
+IMEND         A 0082  2:19          66   99
+NEXT          A b86d  2:40          36
+OUTCMP   EQU  A 000b  2:12          51   92
+P1DDR    EQU  A 0000  2:8           26
+P1DR     EQU  A 0002  2:9           27   41   60  123  128
+PGINT         A b894  3:63          57
+PNTR          A 0084  2:20          30   72   80   83  104  111  116
+SELF          A b8f1  4:125         61  125  129  134  135  136  137  138  139  140
+STALL1        A b876  2:47          56
+STALL2        A b883  3:53          54
+START         A b850  2:24         141
+TCSR     EQU  A 0008  2:10          50   53   91   94
+TIMER    EQU  A 0009  2:11          49   90
+VERF2         A b8d9  4:109        120
+WAIT          A 0086  2:21          45   68   89
+« Last Edit: May 19, 2019, 12:52:05 am by joeqsmith »
