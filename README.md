@@ -26,7 +26,8 @@ IMPORTANT!
 
 MINPRGU4 must be located from $1850-$1FFF on EPROM U3 (NOT starting from $1800 as the instructions in 'Self-Programming the MC68701/U4) document could be interpreted).
 
-The PROGRAM on U4 must start at $1000 on the EPROM for MC6870§U4
+The Program on U4 must be at $1000-$1FFF on the EPROM U4 for MC68701U4 (for MC68701: $1800-$1FFF)
+
 -----------------------------------------------------------------------------------------------
 
 
